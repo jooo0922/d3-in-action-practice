@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="infovizDiv">
+      <svg style="width: 500; height: 500; border: 1px lightgray solid">
+        <!-- 
+          <path> 요소는 d 속성값을 이용해서
+          path의 좌표값을 지정할 수 있음.
+
+          이때, d 속성 문자열값의 마지막에 Z 를 추가하면
+          경로를 닫아서 닫힌 도형이 되고,
+          그렇지 않으면 열린 도형으로 남게 됨.
+
+          근데 svg를 생성할 때 실제로 d 속성으로 
+          경로를 일일이 지정해서 만드는 일은 잘 없다고 함.
+        -->
+
+        <!-- 색칠 안한 열린 도형 -->
+        <path
+          style="fill: none; stroke: gray; stroke-width: 4px"
+          d="M 10,60 40,30 50,50 60,30 70,80"
+          transform="translate(0, 0)"
+        />
+
+        <!-- 색칠한 열린 도형 -->
+        <path
+          style="fill: black; stroke: gray; stroke-width: 4px"
+          d="M 10,60 40,30 50,50 60,30 70,80"
+          transform="translate(0, 100)"
+        />
+
+        <!-- 색칠 안한 닫힌 도형 -->
+        <path
+          style="fill: none; stroke: gray; stroke-width: 4px"
+          d="M 10,60 40,30 50,50 60,30 70,80Z"
+          transform="translate(0, 200)"
+        />
+
+        <!-- 색칠한 닫힌 도형 -->
+        <path
+          style="fill: black; stroke: gray; stroke-width: 4px"
+          d="M 10,60 40,30 50,50 60,30 70,80Z"
+          transform="translate(0, 300)"
+        />
+      </svg>
+    </div>
+  </body>
+</html>
