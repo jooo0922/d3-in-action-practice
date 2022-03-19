@@ -1,15 +1,26 @@
 "use strict";
 
+/**
+ * d3.scaleLinear()
+ *
+ * 데이터값의 편차가 큰 경우,
+ * d3 스케일 함수를 이용해서 데이터를 정규화해줘야 함.
+ *
+ * 책에는 d3.scale.linear() 이런 식으로 나와있지만,
+ * v4 이후에서는 d3.scaleLinear() 이런식으로 바뀌었음.
+ */
+const yScale = d3.scaleLinear().domain([0, 24500]).range([0, 100]);
+
 d3.select("svg")
   .selectAll("rect")
-  .data([15, 50, 22, 8, 100, 10])
+  .data([14, 68, 24500, 430, 19, 1000, 5555])
   .enter() // 바인딩된 데이터 개수가 더 많으니, '들어올(enter)' 요소에 대해서 어떻게 처리할 지 정해줘야 함.
   .append("rect") // <rect> 요소를 enter 할 요소 개수만큼 추가해 줌.
   .attr("width", 10) // <rect> 의 너비를 10으로 동일하게 지정
   .attr("height", function (d) {
     // 인라인 접근자 함수(익명함수)를 통해 바인딩된 데이터 배열의 값들을
     // 각각 받아서 <rect>의 height 값으로 지정해 줌.
-    return d;
+    return yScale(d); // 높이값으로 0 ~ 100 사이의 값으로 정규화된 데이터를 사용함.
   })
   .style("fill", "blue")
   .style("stroke", "red")
@@ -24,5 +35,6 @@ d3.select("svg")
     // 막대의 최대높이 100에서 각 막대의 높이값을 빼준 뒤,
     // 그 값을 막대 <rect>의 y좌표값으로 지정하면 위에서 아래로 향하던 막대들을
     // 아래에서 위로 향하도록 위치를 조정할 수 있음.
-    return 100 - d;
+    // return 100 - d;
+    return 100 - yScale(d); // y좌표값으로 0 ~ 100 사이의 값으로 정규화된 데이터를 사용함.
   });
