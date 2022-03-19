@@ -9,7 +9,13 @@
  * 책에는 d3.scale.linear() 이런 식으로 나와있지만,
  * v4 이후에서는 d3.scaleLinear() 이런식으로 바뀌었음.
  */
-const yScale = d3.scaleLinear().domain([0, 24500]).range([0, 100]);
+// const yScale = d3.scaleLinear().domain([0, 24500]).range([0, 100]);
+const yScale = d3
+  .scaleLinear()
+  .domain([0, 100, 1000, 24500])
+  .range([0, 50, 75, 100]); // 다중선형 스케일(polylinear)을 사용해서 도메인과 레인지에 여러 지점을 설정함.
+// 이걸 왜 해주냐면, 데이터값의 편차가 심하면 오밀조밀하게 작은 값들의 경우 차이를 구분하기가 어려우니
+// 특정 구간의 값에서 유의미한 차이를 시각적으로 확인하기 어려움. -> 이걸 눈으로 확연히 보이게 해줄 때 사용함.
 
 d3.select("svg")
   .selectAll("rect")
