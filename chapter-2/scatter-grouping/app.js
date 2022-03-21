@@ -50,6 +50,7 @@ function dataViz(incomingData) {
 
   // 이제 tweetG는 enter() 에 의해 새로 생성된 <g> 요소들 셀렉션이므로,
   // 별도로 셀렉션을 다시 지정할 필요 없이 바로 자식요소들을 append() 하면 됨.
+  // 또한, 여기서부터 사용되는 accessor 함수의 d값은 부모요소인 <g> 에 바인딩된 데이터 incomingData 를 상속받아서 동일하게 가리킴
   tweetG
     .append("circle")
     .attr("r", (d) => radiusScale(d.impact)) // 반지름값으로 정규화된 트윗 영향력값을 circle의 r값으로 지정
