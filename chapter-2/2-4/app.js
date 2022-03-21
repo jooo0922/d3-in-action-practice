@@ -2,8 +2,7 @@
 
 function dataViz(incomingData) {
   // v5 이후 d3.nest() 는 d3.group 및 d3.rollup() 으로 대체됨.
-  // 참고로, json으로 받은 데이터는 배열이 아니므로, .tweets 로 접근해야 배열 데이터값을 올바르게 전달할 수 있음.
-  const nestedTweets = d3.group(incomingData.tweets, function (d) {
+  const nestedTweets = d3.group(incomingData, function (d) {
     return d.user;
   });
 
@@ -49,7 +48,8 @@ function dataViz(incomingData) {
 }
 
 d3.json("tweets.json").then((data) => {
-  dataViz(data);
+  // 참고로, json으로 받은 데이터는 배열이 아니므로, .tweets 로 접근해야 배열 데이터값을 올바르게 전달할 수 있음.
+  dataViz(data.tweets);
 });
 
 /**
