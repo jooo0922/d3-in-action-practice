@@ -76,6 +76,16 @@ function dataViz(incomingData) {
    * 개수가 남는 DOM 요소를 제거함.
    */
   d3.selectAll("g").data([1, 2, 3, 4]).exit().remove();
+
+  d3.selectAll("g")
+    .select("text")
+    .text((d) => d);
+
+  // selection.each(콜백함수) 는
+  // 선택된 모든 셀렉션 요소를 파라미터로 전달받아 콜백함수를 실행시키는 메서드
+  d3.selectAll("g").each((d) => console.log(d)); // 얘는 데이터를 새로 바인딩했으므로, 새로 바인딩된 데이터가 출력됨
+  d3.selectAll("text").each((d) => console.log(d)); // 얘도 새로 바인딩된 데이터를 부모 <g>에서 상속받아 사용했으므로, 새로 바인딩된 데이터가 출력됨.
+  d3.selectAll("circle").each((d) => console.log(d)); // 얘는 새로 바인딩된 데이터로 뭘 갱신하지 않았으므로, 이전에 바인딩된 데이터가 출력됨.
 }
 
 d3.json("tweets.json").then((data) => {
