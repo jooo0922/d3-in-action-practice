@@ -61,6 +61,21 @@ function dataViz(incomingData) {
 
   // 트윗객체 데이터의 user 속성값과 Date 객체에서 '시'에 해당하는 값만 빼와서 <text>에 입력하여 달아줌.
   tweetG.append("text").text((d) => `${d.user}-${d.tweetTime.getHours()}`);
+
+  /**
+   * exit()
+   *
+   * enter() 메서드와 반대로
+   * DOM 요소가 바인딩된 데이터보다 개수가 많을 때
+   * 남는 DOM 요소를 어떻게 없앨지 이후 메서드 체이닝에서 정의함.
+   *
+   * enter().append('추가할 요소') 이런식으로
+   * DOM 요소를 추가하는 것처럼,
+   *
+   * exit().remove() 메서드를 통해 데이터 바인딩 후
+   * 개수가 남는 DOM 요소를 제거함.
+   */
+  d3.selectAll("g").data([1, 2, 3, 4]).exit().remove();
 }
 
 d3.json("tweets.json").then((data) => {
