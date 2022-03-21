@@ -66,3 +66,15 @@ d3.json("tweets.json").then((data) => {
   // 참고로, json으로 받은 데이터는 배열이 아니므로, .tweets 로 접근해야 배열 데이터값을 올바르게 전달할 수 있음.
   dataViz(data.tweets);
 });
+
+/**
+ * 참고로 <text> 는 anchor 가
+ * 텍스트 시작 위치에 놓임.
+ *
+ * 따라서, 텍스트 초기 위치는 오른쪽에 출력됨.
+ *
+ * 이걸 바꾸고 싶으면,
+ * 'text-anchor' 스타일을 'end' 나 'middle' 로 변경할 것.
+ *
+ * p.113 참고!
+ */
