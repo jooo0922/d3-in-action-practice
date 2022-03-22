@@ -1,0 +1,23 @@
+/* 각 svg 요소들(<text>, <circle>)의 클래스 상태별 스타일 정의 */
+
+text {
+  font-size: 10px;
+}
+
+g > text.active {
+  font-style: 30px;
+}
+
+circle {
+  fill: pink;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+circle.active {
+  fill: red;
+}
+
+circle.inactive {
+  fill: gray;
+}
