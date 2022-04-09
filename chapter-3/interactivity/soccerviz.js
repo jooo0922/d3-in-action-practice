@@ -55,6 +55,7 @@ function createSoccerViz() {
       (el) => el !== "team" && el !== "region"
     ); // 어쨋든 incomingData 중에서 아무거나 하나 가져와서 key값들을 문자열 배열로 받아놓음.
     // 이 때, team, region 은 수치화할 수 있는 데이터 목록이 아니기 때문에, key 문자열 배열에서 filter 로 제외시킴. 못쓰는 데이터들이니까.
+    // 왜 수치화한 데이터들만 쓰려는걸까? 아래에서 보면 알겠지만 그 수치들을 가지고 <circle> 의 반지름값을 매겨주려는 거임.
 
     d3.select("#controls")
       .selectAll("button.temas") // class 가 teams 인 <button> 요소는 <div id='controls' 에 없으니 당연히 빈 셀렉션을 받음.
