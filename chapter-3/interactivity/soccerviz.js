@@ -37,6 +37,17 @@ function createSoccerViz() {
     // 각각의 <g> 요소에 <circle> 생성해 줌.
     teamG
       .append("circle")
+      .attr("r", 0)
+      .transition() // 각 g에 <circle> 요소 생성 시 연쇄 트랜지션을 적용시킴 (하나의 트랜지션이 끝난 후 다른 트랜지션 연이어 적용)
+      .delay(function (d, i) {
+        // 오른쪽으로 갈수록 반지름이 40까지 커지기 위한 지연시간이 길어질거임
+        // 이런 식으로, .delay() 로 지연시간을 줘서 연쇄 트랜지션을 적용할 수 있음.
+        return i * 100;
+      })
+      .duration(500)
+      .attr("r", 40)
+      .transition() // 다음 연쇄 트랜지션 시작
+      .duration(500)
       .attr("r", 20)
       .style("fill", "pink")
       .style("stroke", "black")
