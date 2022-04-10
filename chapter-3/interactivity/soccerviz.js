@@ -89,5 +89,28 @@ function createSoccerViz() {
           return radiusScale(d[key]);
         });
     }
+
+    // 이제는 버튼들 말고, 각 국가별 <g> 요소에 mouseover 이벤트핸들러 등록함.
+    teamG.on("mouseover", highlightRegion);
+    teamG.on("mouseout", function (e) {
+      // 이거는 마우스가 밖으로 나왔을 때, 각 <g> 요소의 <circle> 색상을 원래대로 되돌리는 이벤트핸들러를 달아준 것.
+      d3.selectAll("g.overallG").select("circle").style("fill", "pink");
+    });
+
+    function highlightRegion(e) {
+      d3.selectAll("g.overallG") // 각 국가별 <g> 요소를 모두 선택한 셀렉션이 반환되겠지
+        .select("circle") // 각 국가별 <g> 요소 안에 담긴 <circle> 들을 선택함.
+        .style("fill", function (p) {
+          // 각 국가별 <circle> 에 바인딩된 incomingData(즉, p) 를 돌면서,
+          // mouseover 된 e.currentTarget (즉, 해당 국가의 <g> 요소)의 __data__.region 과 동일하면,
+          // 빨강색으로 강조해주고, 나머지는 회색으로 색칠해버림.
+          // 현재 d3 버전의 .on('event', callback) 에서 callback 에 전달해주는 이벤트 파라미터는
+          // 바닐라 js 의 이벤트 파라미터와 동일함... 거기에 바인딩된 데이터를 인자로 받는게 아니기 때문에
+          // e.currentTarget(즉, 이벤트를 받은 <g> 요소)에 접근한 뒤, .__data__.region 이런식으로 해줘야
+          // 해당 요소에 바인딩된 데이터에 접근할 수 있을거임.
+          const selectedRegion = e.currentTarget.__data__.region;
+          return p.region === selectedRegion ? "red" : "gray";
+        });
+    }
   }
 }
