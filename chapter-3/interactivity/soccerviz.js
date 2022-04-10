@@ -105,10 +105,7 @@ function createSoccerViz() {
 
     // 이제는 버튼들 말고, 각 국가별 <g> 요소에 mouseover 이벤트핸들러 등록함.
     teamG.on("mouseover", highlightRegion);
-    teamG.on("mouseout", function (e) {
-      // 이거는 마우스가 밖으로 나왔을 때, 각 <g> 요소의 <circle> 색상을 원래대로 되돌리는 이벤트핸들러를 달아준 것.
-      d3.selectAll("g.overallG").select("circle").style("fill", "pink");
-    });
+    teamG.on("mouseout", unHighlight);
 
     function highlightRegion(e) {
       d3.selectAll("g.overallG") // 각 국가별 <g> 요소를 모두 선택한 셀렉션이 반환되겠지
@@ -124,6 +121,11 @@ function createSoccerViz() {
           const selectedRegion = e.currentTarget.__data__.region;
           return p.region === selectedRegion ? "red" : "gray";
         });
+    }
+
+    // 이거는 마우스가 밖으로 나왔을 때, 각 <g> 요소의 <circle> 색상을 원래대로 되돌리는 이벤트핸들러를 달아주려고 만든 함수
+    function unHighlight(e) {
+      d3.selectAll("g.overallG").select("circle").style("fill", "pink");
     }
   }
 }
