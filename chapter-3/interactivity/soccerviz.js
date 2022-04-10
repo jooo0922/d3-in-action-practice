@@ -58,7 +58,7 @@ function createSoccerViz() {
       .append("text")
       .style("text-anchor", "middle") // <text> 는 기본 anchor가 텍스트 시작위치(맨 왼쪽)에 놓이므로, 이 anchor값을 가운데('middle')로 변경한 것. p.113 참고.
       .attr("y", 30)
-      .style("font-size", "10px")
+      // .style("font-size", "10px") // d3.classed() 를 이용해 <text> 에 .active 클래스를 toggle 하면서 동적으로 font-size 를 조절하려고 잠시 코멘트 처리함.
       .text((d) => d.team);
 
     // 현재 d3 버전에서 d3.keys(Object) 는 없어졌음. 아마 es6 이후 js 내장 api에 Object.keys() 가 생겨서 더 이상 필요없어졌기 때문인 거 같음.
@@ -104,8 +104,8 @@ function createSoccerViz() {
     }
 
     // 이제는 버튼들 말고, 각 국가별 <g> 요소에 mouseover 이벤트핸들러 등록함.
-    teamG.on("mouseover", highlightRegion);
-    teamG.on("mouseout", unHighlight);
+    teamG.on("mouseover", highlightRegion2);
+    teamG.on("mouseout", unHighlight2);
 
     function highlightRegion(e) {
       d3.selectAll("g.overallG") // 각 국가별 <g> 요소를 모두 선택한 셀렉션이 반환되겠지
@@ -123,9 +123,40 @@ function createSoccerViz() {
         });
     }
 
+    // d3.rgb().darker() 또는 .brighter() 로 mouseover 된 <g> 요소 안의 <circle> 요소의 색상 채도를 조절해주는 함수.
+    function highlightRegion2(e) {
+      const teamColor = d3.rgb("pink"); // 초기 색상값을 d3.rgb() 로 지정할 수 있음.
+
+      // this 를 통해 이벤트핸들러가 바인딩된 요소인 teamG 즉, DOM 요소인 <g> 에 직접 접근할 수 있음.
+      d3.select(this).select("text").classed("active", true).attr("y", 10); // 동적으로 .active 클래스를 붙였다 뗏다 하면서 font-size 를 조절하려는 것.
+      d3.selectAll("g.overallG")
+        .select("circle")
+        .style("fill", function (p) {
+          const selectedRegion = e.currentTarget.__data__.region;
+          return p.region === selectedRegion
+            ? teamColor.darker(0.75)
+            : teamColor.brighter(0.5);
+        });
+
+      // 이렇게 하면 mouseover 된 <g> 요소가 부모요소인 #teamsG 의 마지막 자식요소 자리(즉, 끝부분)으로 이동함.
+      // 동일한 DOM 요소가 새로 추가되는 게 아니라, 자리만 마지막 자식요소 자리로 이동하는 개념으로 보면 됨.
+      // svg 는 zIndex 설정이 불가하므로, 이런 식으로 DOM 을 직접 조작해 svg 요소를 마지막으로 옮겨줘야
+      // 다른 svg 요소들보다 앞에 보이도록 할 수 있음.
+      this.parentElement.appendChild(this);
+    }
+
     // 이거는 마우스가 밖으로 나왔을 때, 각 <g> 요소의 <circle> 색상을 원래대로 되돌리는 이벤트핸들러를 달아주려고 만든 함수
     function unHighlight(e) {
       d3.selectAll("g.overallG").select("circle").style("fill", "pink");
+    }
+
+    // highlightRegion2 에서 채도조절한 <circle> 의 색상값을 모두 원래 색상값으로 초기화하고, <text> 요소도 원래대로 돌려놓는 함수
+    function unHighlight2(e) {
+      d3.selectAll("g.overallG").select("circle").style("fill", "pink");
+      d3.selectAll("g.overallG")
+        .select("text")
+        .classed("active", false) // 동적으로 .active 클래스를 붙였다 뗏다 하면서 font-size 를 조절하려는 것.
+        .attr("y", 30); // 텍스트의 높이값(y) 도 원래대로 되돌려놓음.
     }
   }
 }
