@@ -82,6 +82,8 @@ function createSoccerViz() {
 
       d3.selectAll("g.overallG") // 각 나라를 묶은 <g> 요소 셀렉션을 받음.
         .select("circle") // 각 <g> 의 자식들인 <circle> 을 선택함
+        .transition() // 인터랙션을 부드럽게 처리하기 위해, <circle> 셀렉션 전체에 .transition() 으로 전환(애니메이션)을 적용함
+        .duration(1000) // .duration(밀리세컨드) 으로 전환 지속시간을 정의함.
         .attr("r", function (d) {
           // 각 circle 에 바인딩해놓은 incomingData 들(즉, 인자로 받는 d값)을 가져온 뒤, (맨 위에서 처음에 .data(incomingData) 로 데이터바인딩 했던 거 보이지?)
           // 그 중에서 key값에 해당하는 value를 뽑은 뒤, 위에서 리턴받은 정규화 함수로 돌려서 2 ~ 20 사이의 radius 값을 리턴해 줌.
