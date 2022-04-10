@@ -5,7 +5,7 @@ text {
 }
 
 g > text.active {
-  font-style: 30px;
+  font-size: 30px;
 }
 
 circle {
