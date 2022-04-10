@@ -128,6 +128,7 @@ function createSoccerViz() {
       const teamColor = d3.rgb("pink"); // 초기 색상값을 d3.rgb() 로 지정할 수 있음.
 
       // this 를 통해 이벤트핸들러가 바인딩된 요소인 teamG 즉, DOM 요소인 <g> 에 직접 접근할 수 있음.
+      // d3.classed('클래스이름', boolean) 셀렉션에 해당 클래스를 add 하거나 remove 할 때 사용함.
       d3.select(this).select("text").classed("active", true).attr("y", 10); // 동적으로 .active 클래스를 붙였다 뗏다 하면서 font-size 를 조절하려는 것.
       d3.selectAll("g.overallG")
         .select("circle")
