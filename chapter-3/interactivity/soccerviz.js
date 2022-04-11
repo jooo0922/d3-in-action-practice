@@ -196,5 +196,17 @@ function createSoccerViz() {
         .classed("active", false) // 동적으로 .active 클래스를 붙였다 뗏다 하면서 font-size 를 조절하려는 것.
         .attr("y", 30); // 텍스트의 높이값(y) 도 원래대로 되돌려놓음.
     }
+
+    // 외부 이미지파일을 불러와서 그래프 요소에 추가하는 방법 (참고로, <svg> 안에서 이미지 태그는 <image> 를 사용함.)
+    d3.selectAll("g.overallG")
+      .insert("image", "text") // .insert('끼워넣을 요소 타입', '어느 요소 앞에 끼울 것인지의 타입') 이렇게 하면, 두 번째 파라미터 앞에 첫 번째 파라미터가 끼워져서 두 번째 파라미터 요소에 가려질거임.
+      .attr("xlink:href", function (d) {
+        // 'xlink: href' 를 통해 <image> 의 경로를 지정함.
+        return `./images/${d.team}.png`;
+      })
+      .attr("width", "45px")
+      .attr("height", "20px")
+      .attr("x", "-22")
+      .attr("y", "-10"); // 이미지의 x, y 값을 각각 이미지의 width, height 의 절반의 마이너스로 줘야 각 <g> 요소의 정가운데로 올 수 있음.
   }
 }
