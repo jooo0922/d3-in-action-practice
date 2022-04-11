@@ -91,6 +91,18 @@ function createSoccerViz() {
       // 0 ~ 최댓값 사이의 숫자범위를 2 ~ 20 사이의 숫자로 정규화해주는 함수 리턴함. -> 이 정규화된 값을 <circle>의 반지름값으로 사용하려는 것!
       const radiusScale = d3.scaleLinear().domain([0, maxValue]).range([2, 20]);
 
+      // 위에 이벤트로 입력받은 key값을 기준으로 찾은 최댓값으로
+      // 0 ~ 최댓값 사이의 숫자범위를 'yellow' ~ 'blue' 사이의 색상범위로 정규화해주는 함수 리턴 -> 이 정규화된 값을 <circle> 의 색상으로 칠해주려는 것!
+      const ybRamp = d3
+        .scaleLinear()
+        // 근데 아무것도 없이 기본 보간자로 사용하면 굉장히 우중충한 색이 보간되어 나옴.
+        // 그래서 .interpolate() 를 이용해서 보간에 필요한 다양한 색상모델을 직접 지정하려는 것
+        // .interpolate(d3.interpolateHsl) // 얘는 hsl 값을 기준으로 중간색 보간.
+        // .interpolate(d3.interpolateHcl) // 얘는 hcl (l은 휘도) 값을 기준으로 중간색 보간.
+        .interpolate(d3.interpolateLab) // 얘는 밝기(L)와 색 대응공간(A, B)를 기준으로 중간색 보간.
+        .domain([0, maxValue])
+        .range(["yellow", "blue"]);
+
       d3.selectAll("g.overallG") // 각 나라를 묶은 <g> 요소 셀렉션을 받음.
         .select("circle") // 각 <g> 의 자식들인 <circle> 을 선택함
         .transition() // 인터랙션을 부드럽게 처리하기 위해, <circle> 셀렉션 전체에 .transition() 으로 전환(애니메이션)을 적용함
@@ -100,6 +112,9 @@ function createSoccerViz() {
           // 그 중에서 key값에 해당하는 value를 뽑은 뒤, 위에서 리턴받은 정규화 함수로 돌려서 2 ~ 20 사이의 radius 값을 리턴해 줌.
           // 그 값들을 각 <circle> 의 반지름 값인 r 에 넣어줌.
           return radiusScale(d[key]);
+        })
+        .style("fill", function (d) {
+          return ybRamp(d[key]);
         });
     }
 
