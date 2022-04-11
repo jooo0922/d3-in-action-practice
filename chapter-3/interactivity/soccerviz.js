@@ -208,5 +208,28 @@ function createSoccerViz() {
       .attr("height", "20px")
       .attr("x", "-22")
       .attr("y", "-10"); // 이미지의 x, y 값을 각각 이미지의 width, height 의 절반의 마이너스로 줘야 각 <g> 요소의 정가운데로 올 수 있음.
+
+    // d3.text() 는 html 파일을 text 형태로 fetch 해올 수 있는 API
+    // d3.json() 이런 것들과 마찬가지로 비동기로 데이터를 로드하기 때문에 .then() 을 사용해야 함.
+    d3.text("./resources/modal.html").then((data) => {
+      // 책에 따르면 html 파일을 불러와서 추가할 때에는,
+      // text 형태로 로드한 다음에, 선택한 요소의 html() 메서드로 할당하는 방법이 더 편하다고 함.
+      d3.select("body").append("div").attr("id", "modal").html(data);
+    }); // 참고로 d3.html() 로 html 파일을 직접 fetch 할 경우, HTML 노드가 생성되어 더 정교한 DOM 조작이 가능하다고 함.
+
+    teamG.on("click", teamClick);
+
+    function teamClick(e) {
+      // 현재 클릭된 <g> 요소에 바인딩된 데이터 객체를 가져옴.
+      const data = e.target.__data__;
+
+      d3.selectAll("td.data") // 위에 modal.html 을 로드해서 삽입한 거에서 .data 라는 클래스를 갖는 <td> 를 전부 셀렉션함.
+        .data(Object.values(data)) // 해당 셀렉션에 데이터 객체의 value 를 모아 리턴된 배열을 다시 데이터로써 바인딩함!
+        .html(function (p) {
+          // 각 <td class="data">에 바인딩된 데이터를 인자로 받는 콜백함수에서 다시 그 인자를 뱉어줘서
+          // 결과적으로 html() 메서드로 할당하도록 함. -> 클릭할 때마다 html에 바인딩된 데이터가 텍스트로 렌더링되겠지
+          return p;
+        });
+    }
   }
 }
