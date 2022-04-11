@@ -110,13 +110,24 @@ function createSoccerViz() {
         .scaleOrdinal(d3.schemeCategory10)
         .domain(["UEFA", "CONMEBOL", "CAF", "AFC"]);
 
+      // colorbrewer.js 에 정의된 색상 그라디언트 범주를 사용해서 범주에 맞는 색상값을 리턴하는 함수를 리턴함.
+      // .scaleQuantize() 를 이용하고 있음. 이때, .scaleQuantize() 는 최대 3개의 범주만 받기 때문에,
+      // .range() 에 전달하는 colorbrewer.js 색상 배열의 길이는 3개를 넘으면 안됨.
+      const colorQuantize = d3
+        .scaleQuantize()
+        .domain([0, maxValue])
+        .range(colorbrewer.Reds[3]);
+
       d3.selectAll("g.overallG") // 각 나라를 묶은 <g> 요소 셀렉션을 받음.
         .select("circle") // 각 <g> 의 자식들인 <circle> 을 선택함
         .transition() // 인터랙션을 부드럽게 처리하기 위해, <circle> 셀렉션 전체에 .transition() 으로 전환(애니메이션)을 적용함
         .duration(1000) // .duration(밀리세컨드) 으로 전환 지속시간을 정의함.
+        // .style("fill", function (d) {
+        //   // 얘는 지역데이터 별 색상값 매핑시키는 함수를 리턴받아서 사용한 것.
+        //   return tenColorScale(d.region);
+        // })
         .style("fill", function (d) {
-          // 얘는 지역데이터 별 색상값 매핑시키는 함수를 리턴받아서 사용한 것.
-          return tenColorScale(d.region);
+          return colorQuantize(d[key]);
         })
         .attr("r", function (d) {
           // 각 circle 에 바인딩해놓은 incomingData 들(즉, 인자로 받는 d값)을 가져온 뒤, (맨 위에서 처음에 .data(incomingData) 로 데이터바인딩 했던 거 보이지?)
