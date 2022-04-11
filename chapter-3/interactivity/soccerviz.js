@@ -103,19 +103,30 @@ function createSoccerViz() {
         .domain([0, maxValue])
         .range(["yellow", "blue"]);
 
+      // 얘는 수치형 값들을 특정 색상 범주값에 매핑할 때 사용하는 API
+      // d3.scaleOrdinal(d3.schemeCategory10) 이렇게 해주면, d3.schemeCategory10 에 미리 정의된 10가지 색상으로
+      // domain 값들을 각각 매핑시키는 함수를 리턴함. -> 여기서는 각 지역데이터 마다 색상을 다르게 정의하려는 것임.
+      const tenColorScale = d3
+        .scaleOrdinal(d3.schemeCategory10)
+        .domain(["UEFA", "CONMEBOL", "CAF", "AFC"]);
+
       d3.selectAll("g.overallG") // 각 나라를 묶은 <g> 요소 셀렉션을 받음.
         .select("circle") // 각 <g> 의 자식들인 <circle> 을 선택함
         .transition() // 인터랙션을 부드럽게 처리하기 위해, <circle> 셀렉션 전체에 .transition() 으로 전환(애니메이션)을 적용함
         .duration(1000) // .duration(밀리세컨드) 으로 전환 지속시간을 정의함.
+        .style("fill", function (d) {
+          // 얘는 지역데이터 별 색상값 매핑시키는 함수를 리턴받아서 사용한 것.
+          return tenColorScale(d.region);
+        })
         .attr("r", function (d) {
           // 각 circle 에 바인딩해놓은 incomingData 들(즉, 인자로 받는 d값)을 가져온 뒤, (맨 위에서 처음에 .data(incomingData) 로 데이터바인딩 했던 거 보이지?)
           // 그 중에서 key값에 해당하는 value를 뽑은 뒤, 위에서 리턴받은 정규화 함수로 돌려서 2 ~ 20 사이의 radius 값을 리턴해 줌.
           // 그 값들을 각 <circle> 의 반지름 값인 r 에 넣어줌.
           return radiusScale(d[key]);
-        })
-        .style("fill", function (d) {
-          return ybRamp(d[key]);
         });
+      // .style("fill", function (d) {
+      //   return ybRamp(d[key]);
+      // });
     }
 
     // 이제는 버튼들 말고, 각 국가별 <g> 요소에 mouseover 이벤트핸들러 등록함.
