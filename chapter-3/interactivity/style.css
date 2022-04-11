@@ -21,3 +21,26 @@ circle.active {
 circle.inactive {
   fill: gray;
 }
+
+/* d3.text() 로 로드해와서 문서에 끼워넣을 modal.html 데이터를 꾸며줄 스타일시트 작성 */
+#modal {
+  position: fixed;
+  left: 150px;
+  top: 20px;
+  z-index: 1;
+  background-color: white;
+  border: 1px solid black;
+  box-shadow: 10px 10px 5px #888888;
+}
+
+tr {
+  border: 1px solid gray;
+}
+
+td {
+  font-size: 10px;
+}
+
+td.data {
+  font-weight: 900;
+}
