@@ -198,16 +198,16 @@ function createSoccerViz() {
     }
 
     // 외부 이미지파일을 불러와서 그래프 요소에 추가하는 방법 (참고로, <svg> 안에서 이미지 태그는 <image> 를 사용함.)
-    d3.selectAll("g.overallG")
-      .insert("image", "text") // .insert('끼워넣을 요소 타입', '어느 요소 앞에 끼울 것인지의 타입') 이렇게 하면, 두 번째 파라미터 앞에 첫 번째 파라미터가 끼워져서 두 번째 파라미터 요소에 가려질거임.
-      .attr("xlink:href", function (d) {
-        // 'xlink: href' 를 통해 <image> 의 경로를 지정함.
-        return `./images/${d.team}.png`;
-      })
-      .attr("width", "45px")
-      .attr("height", "20px")
-      .attr("x", "-22")
-      .attr("y", "-10"); // 이미지의 x, y 값을 각각 이미지의 width, height 의 절반의 마이너스로 줘야 각 <g> 요소의 정가운데로 올 수 있음.
+    // d3.selectAll("g.overallG")
+    //   .insert("image", "text") // .insert('끼워넣을 요소 타입', '어느 요소 앞에 끼울 것인지의 타입') 이렇게 하면, 두 번째 파라미터 앞에 첫 번째 파라미터가 끼워져서 두 번째 파라미터 요소에 가려질거임.
+    //   .attr("xlink:href", function (d) {
+    //     // 'xlink: href' 를 통해 <image> 의 경로를 지정함.
+    //     return `./images/${d.team}.png`;
+    //   })
+    //   .attr("width", "45px")
+    //   .attr("height", "20px")
+    //   .attr("x", "-22")
+    //   .attr("y", "-10"); // 이미지의 x, y 값을 각각 이미지의 width, height 의 절반의 마이너스로 줘야 각 <g> 요소의 정가운데로 올 수 있음.
 
     // d3.text() 는 html 파일을 text 형태로 fetch 해올 수 있는 API
     // d3.json() 이런 것들과 마찬가지로 비동기로 데이터를 로드하기 때문에 .then() 을 사용해야 함.
@@ -231,5 +231,47 @@ function createSoccerViz() {
           return p;
         });
     }
+
+    d3.html("resources/icon.svg").then((svgData) => {
+      d3.selectAll("g.overallG").each(function () {
+        // 참고로 .each() 는 전체 셀렉션의 각각에 대해 동일한 콜백함수를 실행함.
+        // console.log(this); // 여기서의 this 는 각 국가별 <g> 요소를 의미함.
+        const gParent = this;
+
+        // svgData 는 .html() 메서드로 로드한 svg 축구공 아이콘
+        d3.select(svgData)
+          .selectAll("path") // svg 축구공 아이콘에서 필요한 <path> 요소만 전체 셀렉션함.
+          .each(function () {
+            // console.log(this); // 여기서 this 는 위에서 셀렉션한 <path> 요소들 각각을 가리킴.
+            gParent.appendChild(this.cloneNode(true)); // 각각의 <path> 요소를 복제하여 각 국가별 <g> 요소에 추가해 줌.
+          });
+
+        // 국가별 <g> 요소에 추가해 준 축구공 아이콘 <path> 를 셀렉션한 뒤, 스타일을 꾸며줌.
+        // d3.selectAll("path")
+        // .style("fill", "darkred")
+        // .style("stroke", "black")
+        // .style("stroke-width", "1px");
+
+        // 이번에는 각 국가별 <g> 요소에 바인딩해놨던 데이터들을 가져온 뒤,
+        // 각 <g>의 하위 path 에 각각의 데이터들을 바인딩함.
+        d3.selectAll("g.overallG").each(function (d) {
+          d3.select(this).selectAll("path").datum(d); // 참고로, .datum() 은 하나의 데이터를 바인딩할 때 사용하는 데이터의 단수형을 의미함.
+        });
+
+        // 얘는 사전에 정의된 10가지 색상값 범주로 도메인 값들을 매핑시켜주는 함수 리턴하는 거 -> 위에서도 동일한 걸 사용했었음.
+        const tenColorScale = d3
+          .scaleOrdinal(d3.schemeCategory10)
+          .domain(["UEFA", "CONMEBOL", "CAF", "AFC"]);
+
+        d3.selectAll("path")
+          .style("fill", function (d) {
+            // 위에서 각 <path> 에 바인딩한 데이터 요소들의 region 값을 이용해서
+            // schemeCategory10 에 정의된 범주의 컬러값들을 리턴받아서, 걔내들을 축구공 아이콘 <path> 의 색깔로 찍어줌.
+            return tenColorScale(d.region);
+          })
+          .style("stroke", "black")
+          .style("stroke-width", "2px");
+      });
+    });
   }
 }
