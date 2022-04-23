@@ -80,7 +80,8 @@ function lineChart(data) {
     })
     .y(function (d) {
       return yScale(d.tweets);
-    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    }) // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    .curve(d3.curveCardinal);
 
   // 리트윗수 및 날짜를 받아 매핑된 좌표값으로 변환해서 선을 그리는 선 생성기 함수를 만듦.
   const retweetLine = d3
@@ -90,7 +91,8 @@ function lineChart(data) {
     })
     .y(function (d) {
       return yScale(d.retweets);
-    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    }) // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    .curve(d3.curveBasis);
 
   // 좋아요수 및 날짜를 받아 매핑된 좌표값으로 변환해서 선을 그리는 선 생성기 함수를 만듦.
   const favLine = d3
@@ -100,7 +102,8 @@ function lineChart(data) {
     })
     .y(function (d) {
       return yScale(d.favorites);
-    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    }) // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+    .curve(d3.curveStepBefore);
 
   // 각 선마다 path 요소를 svg 에 추가하고, 위에서 만든 선 생성기 함수에 바인딩된 데이터를 넘겨줘서 path 요소의 d 속성값을 결정함.
   d3.select("svg")
@@ -146,4 +149,13 @@ loadData().then((data) => lineChart(data));
  *
  * 그러나, 이 예제에서는 각 선을 그리는 코드를 더 알아보기 쉽도록 하려고
  * 일부러 그리는 선마다 생성기 코드를 짜줬다고 함.
+ */
+
+/**
+ * 선 보간법 사용 시 주의사항
+ *
+ * 메서드가 많이 바뀜.
+ * .interpolate() -> .curve() 로 해줘야 하고,
+ *
+ * 'cardinal' -> d3.curveCardinal 로 해줘야 함.
  */
