@@ -8,7 +8,7 @@ async function loadData() {
 function streamGraph(data) {
   // 일단 항상 d3.scaleLinear() 로 매핑함수부터 만들어놓는 것부터 시작할 것
   const xScale = d3.scaleLinear().domain([1, 10.5]).range([20, 480]);
-  const yScale = d3.scaleLinear().domain([0, 50]).range([480, 20]);
+  const yScale = d3.scaleLinear().domain([-100, 100]).range([480, 20]);
 
   // x축 그리는 함수 생성
   const xAxis = d3
@@ -45,26 +45,28 @@ function streamGraph(data) {
           return xScale(d.day);
         })
         .y1(function (d) {
-          return yScale(simpleStacking(d, key)); // 각 영화별 선 생성기의 y좌표값 접근자는 처음 영화(movie1) ~ 지정된 영화(key) 까지의 매출액 누산값을 매핑해서 리턴해 줌.
+          return yScale(alternatingStacking(d, key, "top")); // 각 영화별 선 생성기의 y좌표값 접근자는 처음 영화(movie1) ~ 지정된 영화(key) 까지의 매출액 누산값을 매핑해서 리턴해 줌.
         })
         .y0(function (d) {
-          return yScale(simpleStacking(d, key) - d[key]); // 매출액 누산값에서 현재 지정된 영화 매출액(d[key])를 뺀 값을 매핑해서 리턴해 줌. -> 그러니 값이 바로 밑에 그래프의 누산값과 정확히 일치하겠지. (이거는 p.194 참고)
+          return yScale(alternatingStacking(d, key, "bottom")); // 매출액 누산값에서 현재 지정된 영화 매출액(d[key])를 뺀 값을 매핑해서 리턴해 줌. -> 그러니 값이 바로 밑에 그래프의 누산값과 정확히 일치하겠지. (이거는 p.194 참고)
         }) // 영역 생성 시, d3.area.y1() 과 d3.area.y0() 으로 꼭대기와 바닥의 y좌표값을 각각 생성해줘야 함. -> 그래야 색을 채울 수 있음.
         .curve(d3.curveBasis); // 선을 basis 모드로 보간시킴 -> 곡선으로 나오겠군
 
       d3.select("svg")
-        .append("path")
-        .attr("id", `${key}Area`)
+        .insert("path", ".movie") // .insert('끼워넣을 요소 타입', '어느 요소 앞에 끼울 것인지의 타입') 이렇게 하면, 두 번째 파라미터 앞에 첫 번째 파라미터가 끼워져서 두 번째 파라미터 요소에 가려질거임.
+        // 즉, 지금 만들 새로운 .movie 요소 앞에 이전에 만든 모든 path들을 끼워넣으니까, 항상 새로 만드는 path 앞에 이전에 만든 path 들을 끼워넣는 셈. 따라서, 새로 만든 path일수록 맨앞에 오겠지!
+        .attr("class", "movie")
+        .style("id", key + "Area")
         .attr("d", movieArea(data))
         .attr("fill", fillScale(n)) // n값을 for..in 루프에서 매번 증가시키면서 해당하는 색상 그라디언트 값으로 매핑받아와서 area 색을 채울 수 있도록 함.
-        .attr("stroke", "none")
-        .attr("stroke-width", 2)
-        .style("opacity", 0.5);
-
-      n++;
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .style("opacity", 1);
     }
+    n++;
   }
 
+  // 비교적 간단한 매출액 누산함수
   function simpleStacking(incomingData, incomingAttribute) {
     let newHeight = 0;
 
@@ -79,6 +81,47 @@ function streamGraph(data) {
     }
 
     // 위에 forin 루프에 의해 처음 영화(movie1) 부터 현재 지정된 영화 (incomingAttribute) 까지의 매출액이 newHeight 에 누산되어 리턴해 줌.
+    return newHeight;
+  }
+
+  // simpleStack 보다 더 복잡한 처리를 해주는 매출액 누산함수를 만들어서 스트림그래프를 생성하려고 함.
+  // 참고로 topBottom 은 영역의 꼭대기에 그리는 것인지 바닥에 그리는 것인지 판별할 수 있는 문자열을 받는 것.
+  function alternatingStacking(incomingData, incomingAttribute, topBottom) {
+    let newHeight = 0;
+    let skip = true;
+
+    for (const key in incomingData) {
+      if (key !== "day") {
+        if (key === "movie1" || skip === false) {
+          newHeight += parseInt(incomingData[key]);
+
+          if (key === incomingAttribute) {
+            break;
+          }
+
+          if (skip === false) {
+            skip = true;
+          } else {
+            n % 2 === 0 ? (skip = false) : (skip = true);
+          }
+        } else {
+          skip = false;
+        }
+      }
+    }
+
+    if (topBottom === "bottom") {
+      newHeight = -newHeight;
+    }
+
+    if (n > 1 && n % 2 === 1 && topBottom === "bottom") {
+      newHeight = 0;
+    }
+
+    if (n > 1 && n % 2 === 0 && topBottom === "top") {
+      newHeight = 0;
+    }
+
     return newHeight;
   }
 }
