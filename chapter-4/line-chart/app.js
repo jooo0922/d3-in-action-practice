@@ -71,6 +71,58 @@ function lineChart(data) {
       return yScale(d.favorites); // y좌표값을 각 데이터의 리트윗수를 매핑함수 yScale()에 돌려서 구함.
     })
     .style("fill", "gray");
+
+  // 트윗수 및 날짜를 받아 매핑된 좌표값으로 변환해서 선을 그리는 선 생성기 함수를 만듦.
+  const tweetLine = d3
+    .line()
+    .x(function (d) {
+      return xScale(d.day);
+    })
+    .y(function (d) {
+      return yScale(d.tweets);
+    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+
+  // 리트윗수 및 날짜를 받아 매핑된 좌표값으로 변환해서 선을 그리는 선 생성기 함수를 만듦.
+  const retweetLine = d3
+    .line()
+    .x(function (d) {
+      return xScale(d.day);
+    })
+    .y(function (d) {
+      return yScale(d.retweets);
+    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+
+  // 좋아요수 및 날짜를 받아 매핑된 좌표값으로 변환해서 선을 그리는 선 생성기 함수를 만듦.
+  const favLine = d3
+    .line()
+    .x(function (d) {
+      return xScale(d.day);
+    })
+    .y(function (d) {
+      return yScale(d.favorites);
+    }); // .x(), .y() 는 각각 선 생성기가 그리는 path의 d 속성을 정의할 때 사용할 x, y좌표값을 리턴해주는 접근자 함수를 인자로 받음.
+
+  // 각 선마다 path 요소를 svg 에 추가하고, 위에서 만든 선 생성기 함수에 바인딩된 데이터를 넘겨줘서 path 요소의 d 속성값을 결정함.
+  d3.select("svg")
+    .append("path")
+    .attr("d", tweetLine(data))
+    .attr("fill", "none")
+    .attr("stroke", "darkred")
+    .attr("stroke-width", 2);
+
+  d3.select("svg")
+    .append("path")
+    .attr("d", retweetLine(data))
+    .attr("fill", "none")
+    .attr("stroke", "gray")
+    .attr("stroke-width", 2);
+
+  d3.select("svg")
+    .append("path")
+    .attr("d", favLine(data))
+    .attr("fill", "none")
+    .attr("stroke", "black")
+    .attr("stroke-width", 2);
 }
 
 loadData().then((data) => lineChart(data));
@@ -85,4 +137,13 @@ loadData().then((data) => lineChart(data));
  *
  * 반면, 여기서는 transform 을 안쓰고 있으니까
  * 그냥 양수값으로 tickSize() 를 넘겨줘도 grid 가 제대로 그려지는 것.
+ */
+
+/**
+ * 사실 선 생성기를 3개 씩이나 만들지 않고,
+ * 하나의 선 생성기를 만들어서 .y() 에 들어갈 y좌표값 접근자만
+ * 바꿔서 돌려쓰면 더 효율적으로 구현이 가능함.
+ *
+ * 그러나, 이 예제에서는 각 선을 그리는 코드를 더 알아보기 쉽도록 하려고
+ * 일부러 그리는 선마다 생성기 코드를 짜줬다고 함.
  */
