@@ -13,7 +13,7 @@ function scatterplot(data) {
   const yScale = d3.scaleLinear().domain([0, 100]).range([480, 20]);
 
   // 축을 그리는 함수를 리턴받음.
-  // .tickSize(-470) 으로 잡아준 이유는, 각각 top, right 에 위치하게 될 축이므로,
+  // .tickSize(-470) 으로 잡아준 이유는, 각각 bottom, right 에 위치하게 될 축이므로,
   // 거기서 470만큼 위쪽방향(-) 또는 왼쪽방향(-)으로 눈금을 늘려줘서 grid 를 그려주려는 것.
   const xAxis = d3
     .axisBottom()
