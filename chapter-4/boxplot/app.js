@@ -44,6 +44,29 @@ function scatterplot(data) {
     .attr("cx", (d) => xScale(d.day)) // x좌표값 매핑 함수에 바인딩된 데이터의 day값(1 ~ 7)을 넣어서 값을 매핑받음
     .attr("cy", (d) => yScale(d.median)) // y좌표값 매핑 함수에 바인딩된 데이터의 median값(0 ~ 100살)을 넣어서 값을 매핑받음.
     .style("fill", "darkgray");
+
+  // 박스 플롯 생성
+  d3.select("svg")
+    .selectAll("g.box")
+    .data(data)
+    .enter()
+    .append("g")
+    .attr("class", "box")
+    .attr("transform", function (d) {
+      return `translate(${xScale(d.day)}, ${yScale(d.median)})`;
+    })
+    .each(function (d, i) {
+      // console.log(this); 현재 box 클래스를 갖는 <g> 요소에 대해 .each() 를 해주는거니까 this 는 'g.box' 로 받겠지.
+      // 이런 식으로 선택된 각 요소들에 대해 복잡한 연산을 추가수행해야 하는 경우 .selecrAll() 대신 .each() 를 쓰는 게 좋음.
+      d3.select(this)
+        .append("rect")
+        .attr("width", 20)
+        .attr("x", -10) // 직사각형을 <circle> 의 가운데에 넣으려면 직사각형 width 의 절반만큼 x좌표값을 왼쪽으로 이동시켜줘야 함
+        .attr("height", yScale(d.q1) - yScale(d.q3))
+        .attr("y", yScale(d.q3) - yScale(d.median)) // 높이값이 1사분위수와 3사분위수의 차이값이므로, 'g.box' 를 <circle> 이 가운데에 있도록 맞추려면 높이값의 절반길이인 '3사분위 - 중앙값' 만큼 올려줘야 함.
+        .style("fill", "white")
+        .style("stroke", "black");
+    });
 }
 
 loadData().then((data) => scatterplot(data));
