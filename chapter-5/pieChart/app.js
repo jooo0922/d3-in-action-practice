@@ -1,66 +1,82 @@
 "use strict";
 
-function pie(tweetsData) {
-  // v5 이후 d3.nest() 는 d3.group 및 d3.rollup() 으로 대체됨.
-  const nestedTweets = d3.group(tweetsData, function (d) {
-    return d.user;
+d3.json("tweets.json", function (error, data) {
+  dataViz(data.tweets);
+});
+
+function dataViz(incData) {
+  const nestedTweets = d3
+    .nest()
+    .key(function (el) {
+      return el.user;
+    })
+    .entries(incData);
+
+  var colorScale = d3.scale.category10([0, 1, 2, 3]);
+
+  nestedTweets.forEach(function (el) {
+    el.numTweets = el.values.length;
+    el.numFavorites = d3.sum(el.values, function (d) {
+      return d.favorites.length;
+    });
+    el.numRetweets = d3.sum(el.values, function (d) {
+      return d.retweets.length;
+    });
   });
 
-  /**
-   * InternMap 객체를 forEach로 사용할 때에는
-   * 각 key 에 할당된 value, 즉 배열객체 자체가 그대로 순회하는 인자에 전달됨.
-   *
-   * 그래서, el.numTweets, el.numFavorites 등
-   * 배열 객체에 속성을 새로 만들어서 특정 값을 할당할 수 있음.
-   */
-  nestedTweets.forEach((el) => {
-    // el.numTweets 속성을 새로 만든 뒤, 각 사람별 트윗 개수를 저장함.
-    el.numTweets = el.length;
-
-    // el.numFavorites 속성을 새로 만든 뒤, 각 사람별 트윗을 순회하면서 좋아요 수를 누적계산함. (d3.sum())
-    el.numFavorites = d3.sum(el, (d) => d.favorites.length); // 여기서 el 은 각 사람별 트윗객체가 순회되면서 들어가는 거고, 콜백함수의 인자 d 는 각각의 트윗객체를 뜻함.
-
-    // el.numRetweets 속성을 새로 만든 뒤, 각 사람별 트윗을 순회하면서 리트윗 수를 누적계산함. (d3.sum())
-    el.numRetweets = d3.sum(el, (d) => d.retweets.length);
+  const pieChart = d3.layout.pie().sort(null);
+  pieChart.value(function (d) {
+    return d.numTweets;
   });
-  console.log(nestedTweets);
-
-  const pieChart = d3.pie();
-
-  // d3.pie().value(func) 에서 .value 는 뭐냐면,
-  // 아랫줄에 pieChart(nestedTweets) 로 넣어버렸을 때, '정확히 nestedTweets 안에 어떤 값으로 포맷해줘야 하는건데?'
-  // 에 대해 어떤 값으로 포맷팅 하라고 딱 정해주는 메서드라고 보면 됨. 한 마디로, 접근자를 정의해주는 것!
-  pieChart.value((d) => {
-    return d[1].numTweets; // 여기서는 각 배열객체의 numTweets 값을 기준으로 데이터를 포매팅하도록 정해주고 있음.
-  });
-  const yourPie = pieChart(nestedTweets);
-
-  const newArc = d3.arc();
+  const newArc = d3.svg.arc();
+  newArc.outerRadius(100).innerRadius(20);
 
   d3.select("svg")
     .append("g")
-    .attr("transform", "translate(250, 250)") // <path> 들이 담길 <g> 요소를 <svg> 의 가운데로 이동시킴
+    .attr("transform", "translate(250,250)")
     .selectAll("path")
-    .data(yourPie)
+    .data(pieChart(nestedTweets), function (d) {
+      return d.data.key;
+    })
     .enter()
     .append("path")
-    .attr("d", (d) =>
-      newArc({
-        innerRadius: 20, // innerRadius 값을 지정하면 도넛 모양 차트를 생성할 수 있음.
-        outerRadius: 100,
-        startAngle: d.startAngle,
-        endAngle: d.endAngle,
-      })
-    )
-    .style("fill", "blue")
+    .attr("d", newArc)
+    .style("fill", function (d, i) {
+      return colorScale(i);
+    })
     .style("opacity", 0.5)
     .style("stroke", "black")
-    .style("stroke-width", "2px");
-}
+    .style("stroke-width", "2px")
+    .each(function (d) {
+      this._current = d;
+    });
 
-d3.json("tweets.json").then((data) => {
-  pie(data.tweets);
-});
+  pieChart.value((d) => d.numRetweets);
+  d3.selectAll("path")
+    .data(
+      pieChart(nestedTweets.filter((d) => d.numRetweets > 0)),
+      (d) => d.data.key
+    )
+    .exit()
+    .remove();
+
+  d3.selectAll("path")
+    .data(
+      pieChart(nestedTweets.filter((d) => d.numRetweets > 0)),
+      (d) => d.data.key
+    )
+    .transition()
+    .duration(1000)
+    .attrTween("d", arcTween);
+
+  function arcTween(a) {
+    var i = d3.interpolate(this._current, a);
+    this._current = i(0);
+    return function (t) {
+      return newArc(i(t));
+    };
+  }
+}
 
 /**
  * d3.nest() => d3.group() or d3.rollup() 변경 관련 주의사항
@@ -93,4 +109,26 @@ d3.json("tweets.json").then((data) => {
  * 이 안에는, 특정 key값을 기준으로
  * nesting된 데이터들이 배열로 묶여서
  * value에 담겨있음
+ */
+
+/**
+ * 파이 레이아웃 재정렬 기능 비활성화
+ *
+ * 파이 레이아웃 함수는 기본적으로
+ * 차트를 보기좋게 만들기 위해서, 데이터를 포맷팅할 때마다
+ * 큰 값부터 작은 값 순으로 index 값을 바꿔줌.
+ *
+ * -> 이렇게 하면 각도가 큰 원호부터 각도가 작은 원호 순으로 파이차트가 그려짐.
+ *
+ * 그런데, 파이 레이아웃의 기준값을 pie.value() 로 바꾼 뒤에
+ * 다시 데이터 포맷팅을 하면, 당연히 index 값이 다시 바뀌겠지?
+ *
+ * 그러다 보니까 각 원호의 순서가 뒤바뀌어서 트랜지션이 적용될 때
+ * 뒤틀리는 듯한 움직임이 나오는 거임.
+ *
+ * 이걸 방지하기 위해서, pie.sort(null) 로 해주면
+ * 원호를 큰 값부터 작은값 순으로 index값을 재정렬해주는 기능을 비활성화 할 수 있음.
+ *
+ * 이로 인해 각 원호의 위치가 바뀌지 않게 되므로, 트랜지션을 줘도
+ * 각자 원래 있던 자리에서 각도값만 바뀌게 될거임.
  */
